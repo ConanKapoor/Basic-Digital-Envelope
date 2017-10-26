@@ -16,7 +16,7 @@ def modInverse(a,b):
     a = a % b
     for i in range(1,b):
         if ((a*i) % b) == 1:
-            return x
+            return i
 
 # Function to perform hashing using  hashlib and uuid
 def hashing(word):
@@ -27,7 +27,7 @@ def hashing(word):
 # Function to compare hash values
 def CompareHash(hashed_msz,new_msz):
     password, salt = hashed_msz.split(':')
-    return password == hashlib.sha256(salt.encode() + unew_msz.encode()).hexdigest()
+    return password == hashlib.sha256(salt.encode() + new_msz.encode()).hexdigest()
 
 # Function to input data
 def Input_data():
@@ -41,7 +41,7 @@ def Input_data():
         exit()
 
     # Common key to be shared between respondents for symmetric communication.
-    common_key = input("Please enter the common key to be shared: ")
+    common_key = int(input("Please enter the common key to be shared: "))
     return p,q,common_key
 
 # RSA Key generation process
@@ -55,12 +55,13 @@ def RSAKeyGeneration(p,q):
         if gcd(totient_func,e) != 1:
             print("GCD of totient_func and e should be 1 (Relatively prime).")
             print("Please try again!")
-            break;
-        flag = 1
+            continue;
+        flag = 0
 
-    while(e>1 and e<totient_func):
-        d = modInverse(e,totient);
+    if e>1 and e<totient_func:
+        d = modInverse(e,totient_func);
         print("Value of computed d is: %s" %(d))
+
 
     print("Public Key here is - PU(%s,%s)" %(e,n))
     print("Private Key here is - PR(%s,%s)" %(d,n))
@@ -69,7 +70,7 @@ def RSAKeyGeneration(p,q):
 # RSA Encryption process
 def RSAEncryption(e,n,common_key):
     Cipher = (common_key**e) % n
-    print("Cipher text generated is: %s", %(Cipher))
+    print("Cipher text generated is: %s" %(Cipher))
     return Cipher
 
 # Symmetric Encryption using shared common key
@@ -91,14 +92,11 @@ def RSADecryption(n,d,Cipher,common_key):
 
 # Symmetric Decryption using shared common key
 def SymmetricDecryption(hashed_msz,encoded_msz,Decipher):
-    decipher = CaesarCipher(msz, offset= Decipher)
+    decipher = CaesarCipher(encoded_msz, offset= Decipher)
     decoded_msz = decipher.decoded
     print("Decrypted message is: %s" %(decoded_msz))
 
-    new_hash = hashing(decoded_msz)
-    print("Hash value of Decrypted message is %s" %(new_hash))
-
-    if CompareHash(hashed_msz,new_hash):
+    if CompareHash(hashed_msz,decoded_msz):
         print("The hash match. The data is correct.")
     else:
         print("The hash is different. The data is incorrect")
