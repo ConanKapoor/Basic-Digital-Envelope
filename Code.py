@@ -24,15 +24,20 @@ def hashing(word):
     salt = uuid.uuid4().hex
     return hashlib.sha256(salt.encode() + word.encode()).hexdigest() + ':' + salt
 
+# Function to compare hash values
+def CompareHash(hashed_msz,new_msz):
+    password, salt = hashed_msz.split(':')
+    return password == hashlib.sha256(salt.encode() + unew_msz.encode()).hexdigest()
+
 # Function to input data
-def input_data():
+def Input_data():
     p = int(input("Please Enter value of p [Prime number. eg. 17]: "))
     q = int(input("Please Enter value of q [Prime number. eg. 11]: "))
 
     # Race condition
     if p == q:
         print("Value of p and q can't be equal. Please use different prime numbers.")
-        input_data()
+        Input_data()
         exit()
 
     # Common key to be shared between respondents for symmetric communication.
@@ -76,3 +81,31 @@ def SymmetricEncryption(common_key):
     cipher = CaesarCipher(msz, offset= common_key)
     encoded_msz = cipher.encoded
     print("Symmetrically encrypted data is: %s" %(encoded_msz))
+    return hashed_msz, encoded_msz
+
+# RSA Decryption Process
+def RSADecryption(n,d,Cipher,common_key):
+    Decipher = (Cipher**d) % n
+    print("Deciphered Common key is %s which match the sent key %s" %(Decipher,common_key))
+    return Decipher
+
+# Symmetric Decryption using shared common key
+def SymmetricDecryption(hashed_msz,encoded_msz,Decipher):
+    decipher = CaesarCipher(msz, offset= Decipher)
+    decoded_msz = decipher.decoded
+    print("Decrypted message is: %s" %(decoded_msz))
+
+    new_hash = hashing(decoded_msz)
+    print("Hash value of Decrypted message is %s" %(new_hash))
+
+    if CompareHash(hashed_msz,new_hash):
+        print("The hash match. The data is correct.")
+    else:
+        print("The hash is different. The data is incorrect")
+
+p,q,common_key = Input_data()
+n,e,d = RSAKeyGeneration(p,q)
+Cipher = RSAEncryption(e,n,common_key)
+hashed_msz,encoded_msz = SymmetricEncryption(common_key)
+Decipher = RSADecryption(n,d,Cipher,common_key)
+SymmetricDecryption(hashed_msz,encoded_msz,Decipher)
