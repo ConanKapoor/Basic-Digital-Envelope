@@ -77,33 +77,51 @@ def RSAEncryption(e,n,common_key):
 def SymmetricEncryption(common_key):
     msz = input("Please enter the message to be shared: ")
     hashed_msz = hashing(msz)
-    print("Hash for message given is: %s" %(hashed_msz))
+    print("\nHash for message given is: %s" %(hashed_msz))
 
     cipher = CaesarCipher(msz, offset= common_key)
     encoded_msz = cipher.encoded
-    print("Symmetrically encrypted data is: %s" %(encoded_msz))
+    print("\nSymmetrically encrypted data is: %s" %(encoded_msz))
     return hashed_msz, encoded_msz
 
 # RSA Decryption Process
 def RSADecryption(n,d,Cipher,common_key):
     Decipher = (Cipher**d) % n
-    print("Deciphered Common key is %s which match the sent key %s" %(Decipher,common_key))
+    print("\nDeciphered Common key is %s" %(Decipher))
+    print("\nWhich match the sent key - %s" %(common_key))
     return Decipher
 
 # Symmetric Decryption using shared common key
 def SymmetricDecryption(hashed_msz,encoded_msz,Decipher):
     decipher = CaesarCipher(encoded_msz, offset= Decipher)
     decoded_msz = decipher.decoded
-    print("Decrypted message is: %s" %(decoded_msz))
+    print("\nDecrypted message is: %s" %(decoded_msz))
 
+    print("\n##### RESULT #####")
     if CompareHash(hashed_msz,decoded_msz):
-        print("The hash match. The data is correct.")
+        print("\n--> The hash match. The data is correct.")
     else:
-        print("The hash is different. The data is incorrect")
+        print("\n-->The hash is different. The data is incorrect")
 
+##############################################################################################
+print("\tWelcome to Digital Envelope Program.\n")
+
+print("##### DATA INPUT #####")
 p,q,common_key = Input_data()
+
+print("\n##### KEY GENERATION PROCESS #####")
 n,e,d = RSAKeyGeneration(p,q)
+
+print("\n\n<------- Encryption Process starts here ------->")
+print("\n##### RSA ENCRYPTION PROCESS #####")
 Cipher = RSAEncryption(e,n,common_key)
+
+print("\n##### SYMMETRIC ENCRYPTION PROCESS #####")
 hashed_msz,encoded_msz = SymmetricEncryption(common_key)
+
+print("\n\n<------- Decryption Process starts here ------->")
+print("\n##### RSA DECRYPTION PROCESS #####")
 Decipher = RSADecryption(n,d,Cipher,common_key)
+
+print("\n##### SYMMETRIC DECRYPTION PROCESS #####")
 SymmetricDecryption(hashed_msz,encoded_msz,Decipher)
