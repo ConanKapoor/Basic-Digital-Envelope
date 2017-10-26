@@ -29,6 +29,8 @@ def input_data():
         print("Value of p and q can't be equal. Please use different prime numbers.")
         input_data()
         exit()
+    msz = input("Please enter the data to be messaged.")
+    return p,q,msz
 
 def RSAKeyGeneration(p,q):
     n = p * q
@@ -45,7 +47,13 @@ def RSAKeyGeneration(p,q):
 
     while(e>1 and e<totient_func):
         d = modInverse(e,totient);
+        print("Value of computed d is: %s" %(d))
 
     print("Public Key here is - PU(%s,%s)" %(e,n))
     print("Private Key here is - PR(%s,%s)" %(d,n))
     return n,e,d
+
+def Encryption(e,n,msz):
+    Cipher = (msz**e) % n
+    print("Cipher text generated is: %s", %(Cipher))
+    return Cipher
