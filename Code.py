@@ -1,8 +1,10 @@
 # Author - Shivam Kapoor
 # Github Link -https://github.com/ConanKapoor/Basic-Digital-Envelope
 
+import os, time
 import uuid
 import hashlib
+from pyfiglet import Figlet
 from caesarcipher import CaesarCipher
 
 # Function to compute gcd of 2 numbers
@@ -42,6 +44,7 @@ def Input_data():
 
     # Common key to be shared between respondents for symmetric communication.
     common_key = int(input("Please enter the common key to be shared: "))
+    print("\nThanks!")
     return p,q,common_key
 
 # RSA Key generation process
@@ -53,35 +56,35 @@ def RSAKeyGeneration(p,q):
     while(flag):
         e = int(input("Please select value of e: "))
         if gcd(totient_func,e) != 1:
-            print("GCD of totient_func and e should be 1 (Relatively prime).")
+            print("\nGCD of totient_func and e should be 1 (Relatively prime).")
             print("Please try again!")
-            continue;
+            continue
         flag = 0
 
     if e>1 and e<totient_func:
         d = modInverse(e,totient_func);
-        print("Value of computed d is: %s" %(d))
+        print("\nValue of computed d is: %s" %(d))
 
 
-    print("Public Key here is - PU(%s,%s)" %(e,n))
+    print("\nPublic Key here is - PU(%s,%s)" %(e,n))
     print("Private Key here is - PR(%s,%s)" %(d,n))
     return n,e,d
 
 # RSA Encryption process
 def RSAEncryption(e,n,common_key):
     Cipher = (common_key**e) % n
-    print("Cipher text generated is: %s" %(Cipher))
+    print("\nCipher text generated is: %s" %(Cipher))
     return Cipher
 
 # Symmetric Encryption using shared common key
 def SymmetricEncryption(common_key):
-    msz = input("Please enter the message to be shared: ")
+    msz = input("\nPlease enter the message to be shared: ")
     hashed_msz = hashing(msz)
     print("\nHash for message given is: %s" %(hashed_msz))
 
     cipher = CaesarCipher(msz, offset= common_key)
     encoded_msz = cipher.encoded
-    print("\nSymmetrically encrypted data is: %s" %(encoded_msz))
+    print("Symmetrically encrypted data is: %s" %(encoded_msz))
     return hashed_msz, encoded_msz
 
 # RSA Decryption Process
@@ -104,24 +107,65 @@ def SymmetricDecryption(hashed_msz,encoded_msz,Decipher):
         print("\n-->The hash is different. The data is incorrect")
 
 ##############################################################################################
-print("\tWelcome to Digital Envelope Program.\n")
 
-print("##### DATA INPUT #####")
-p,q,common_key = Input_data()
+# Banner for the program
+def Banner():
+    banner = Figlet(font='slant')
+    print (banner.renderText('DIGITAL ENVELOPE'))
+    print ("<---------WELCOME TO DIGITAL ENVELOPE PROGRAM--------->")
+    print ("<---------v1.0 - Author - Conan Kapoor--------->")
+    print ("\n")
 
-print("\n##### KEY GENERATION PROCESS #####")
-n,e,d = RSAKeyGeneration(p,q)
+def Menu():
+    print ("Please Select the mode of operation:- \n")
+    print ("----> 1) Give Input.")
+    print ("----> 2) Initiate Key Generation Process.")
+    print ("----> 3) Initiate RSA Encryption For Assymetric Common Key sharing.")
+    print ("----> 4) Initiate Symmetric Encryption for conversation after ke sharing.")
+    print ("----> 5) Decrypt Asymmetricly shared common key.")
+    print ("----> 6) Decrypt message sent through Symmetric Conversation.")
+    print ("----> 7) Exit the program :[.\n")
 
-print("\n\n<------- Encryption Process starts here ------->")
-print("\n##### RSA ENCRYPTION PROCESS #####")
-Cipher = RSAEncryption(e,n,common_key)
+if __name__ == '__main__':
+    die =1
+    try:
+        while(die):
+            os.system("clear")
+            Banner()
+            Menu()
+            choice = int(input("Enter your choice: "))
+            print("\n")
 
-print("\n##### SYMMETRIC ENCRYPTION PROCESS #####")
-hashed_msz,encoded_msz = SymmetricEncryption(common_key)
+            if choice == 1:
+                print("##### DATA INPUT #####")
+                p,q,common_key = Input_data()
+                time.sleep(2)
+            elif choice == 2:
+                print("##### KEY GENERATION PROCESS #####")
+                n,e,d = RSAKeyGeneration(p,q)
+                time.sleep(2)
+            elif choice == 3:
+                print("##### RSA ENCRYPTION PROCESS #####")
+                Cipher = RSAEncryption(e,n,common_key)
+                time.sleep(2)
+            elif choice == 4:
+                print("##### SYMMETRIC ENCRYPTION PROCESS #####")
+                hashed_msz,encoded_msz = SymmetricEncryption(common_key)
+                time.sleep(2)
+            elif choice == 5:
+                print("##### RSA DECRYPTION PROCESS #####")
+                Decipher = RSADecryption(n,d,Cipher,common_key)
+                time.sleep(2)
+            elif choice == 6:
+                print("##### SYMMETRIC DECRYPTION PROCESS #####")
+                SymmetricDecryption(hashed_msz,encoded_msz,Decipher)
+                time.sleep(2)
+            elif choice == 7:
+                die = 0
+                quit()
+            else:
+                print("This choice is not in the menu. Try Again!!!")
+                die=1
 
-print("\n\n<------- Decryption Process starts here ------->")
-print("\n##### RSA DECRYPTION PROCESS #####")
-Decipher = RSADecryption(n,d,Cipher,common_key)
-
-print("\n##### SYMMETRIC DECRYPTION PROCESS #####")
-SymmetricDecryption(hashed_msz,encoded_msz,Decipher)
+    except KeyboardInterrupt:
+        print("\n\nInterrupt received! Exiting cleanly...\n")
